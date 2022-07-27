@@ -64,6 +64,18 @@ func NewAppsTransportFromPrivateKey(tr http.RoundTripper, appID int64, key *rsa.
 	}
 }
 
+// NewAppsTransportCustomSigningMethod returns an AppsTransport using the chosen signingMethod and a compatible key.
+func NewAppsTransportCustomSigningMethod(tr http.RoundTripper, appID int64, key interface{}, signingMethod jwt.SigningMethod) *AppsTransport {
+	return &AppsTransport{
+		BaseURL:       apiBaseURL,
+		Client:        &http.Client{Transport: tr},
+		tr:            tr,
+		key:           key,
+		signingMethod: signingMethod,
+		appID:         appID,
+	}
+}
+
 // RoundTrip implements http.RoundTripper interface.
 func (t *AppsTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// GitHub rejects expiry and issue timestamps that are not an integer,
