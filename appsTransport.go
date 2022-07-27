@@ -88,7 +88,14 @@ func (t *AppsTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		ExpiresAt: exp.Unix(),
 		Issuer:    strconv.FormatInt(t.appID, 10),
 	}
-	bearer := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+
+	signingMethod := t.signingMethod
+	// This should not occur since NewAppsTransportFromPrivateKey was updated to explicitly set the signing method to RS256
+	if signingMethod == nil {
+		return nil, fmt.Errorf("the AppsTransport's signingMethod is unexpectedly nil")
+	}
+
+	bearer := jwt.NewWithClaims(signingMethod, claims)
 
 	ss, err := bearer.SignedString(t.key)
 	if err != nil {
