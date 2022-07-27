@@ -20,11 +20,12 @@ import (
 //
 // See https://developer.github.com/apps/building-integrations/setting-up-and-registering-github-apps/about-authentication-options-for-github-apps/
 type AppsTransport struct {
-	BaseURL string            // BaseURL is the scheme and host for GitHub API, defaults to https://api.github.com
-	Client  Client            // Client to use to refresh tokens, defaults to http.Client with provided transport
-	tr      http.RoundTripper // tr is the underlying roundtripper being wrapped
-	key     *rsa.PrivateKey   // key is the GitHub App's private key
-	appID   int64             // appID is the GitHub App's ID
+	BaseURL       string            // BaseURL is the scheme and host for GitHub API, defaults to https://api.github.com
+	Client        Client            // Client to use to refresh tokens, defaults to http.Client with provided transport
+	tr            http.RoundTripper // tr is the underlying roundtripper being wrapped
+	key           interface{}       // key is the GitHub App's private key (or any value that is appropriate for the specified signing method)
+	signingMethod jwt.SigningMethod // signingMethod specifies how the JWT will be signed (and dictates what key is appropriate)
+	appID         int64             // appID is the GitHub App's ID
 }
 
 // NewAppsTransportKeyFromFile returns a AppsTransport using a private key from file.
