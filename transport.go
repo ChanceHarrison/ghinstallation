@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/v48/github"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 const (
@@ -94,6 +95,17 @@ func New(tr http.RoundTripper, appID, installationID int64, privateKey []byte) (
 	}
 
 	return NewFromAppsTransport(atr, installationID), nil
+}
+
+// NewTransportCustomSigningMethod returns a Transport using the specified key and jwt.SigningMethod.
+//
+// The provided tr http.RoundTripper should be shared between multiple
+// installations to ensure reuse of underlying TCP connections.
+//
+// The returned Transport's RoundTrip method is safe to be used concurrently.
+func NewTransportCustomSigningMethod(tr http.RoundTripper, appID, installationID int64, key interface{}, signingMethod jwt.SigningMethod) *Transport {
+	atr := NewAppsTransportCustomSigningMethod(tr, appID, key, signingMethod)
+	return NewFromAppsTransport(atr, installationID)
 }
 
 // NewFromAppsTransport returns a Transport using an existing *AppsTransport.
