@@ -103,9 +103,12 @@ func New(tr http.RoundTripper, appID, installationID int64, privateKey []byte) (
 // installations to ensure reuse of underlying TCP connections.
 //
 // The returned Transport's RoundTrip method is safe to be used concurrently.
-func NewTransportCustomSigningMethod(tr http.RoundTripper, appID, installationID int64, key interface{}, signingMethod jwt.SigningMethod) *Transport {
-	atr := NewAppsTransportCustomSigningMethod(tr, appID, key, signingMethod)
-	return NewFromAppsTransport(atr, installationID)
+func NewTransportCustomSigningMethod(tr http.RoundTripper, appID, installationID int64, key interface{}, signingMethod jwt.SigningMethod) (*Transport, error) {
+	atr, err := NewAppsTransportCustomSigningMethod(tr, appID, key, signingMethod)
+	if err != nil {
+		return nil, err
+	}
+	return NewFromAppsTransport(atr, installationID), nil
 }
 
 // NewFromAppsTransport returns a Transport using an existing *AppsTransport.

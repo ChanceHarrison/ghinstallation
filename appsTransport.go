@@ -65,7 +65,12 @@ func NewAppsTransportFromPrivateKey(tr http.RoundTripper, appID int64, key *rsa.
 }
 
 // NewAppsTransportCustomSigningMethod returns an AppsTransport using the chosen signingMethod and a compatible key.
-func NewAppsTransportCustomSigningMethod(tr http.RoundTripper, appID int64, key interface{}, signingMethod jwt.SigningMethod) *AppsTransport {
+func NewAppsTransportCustomSigningMethod(tr http.RoundTripper, appID int64, key interface{}, signingMethod jwt.SigningMethod) (*AppsTransport, error) {
+	// Verify that the given key is compatible with the given signingMethod
+	_, err := jwt.New(signingMethod).SignedString(key)
+	if err != nil {
+		return nil, fmt.Errorf("could not sign jwt with given key: %s", err)
+	}
 	return &AppsTransport{
 		BaseURL:       apiBaseURL,
 		Client:        &http.Client{Transport: tr},
@@ -73,7 +78,7 @@ func NewAppsTransportCustomSigningMethod(tr http.RoundTripper, appID int64, key 
 		key:           key,
 		signingMethod: signingMethod,
 		appID:         appID,
-	}
+	}, nil
 }
 
 // RoundTrip implements http.RoundTripper interface.
