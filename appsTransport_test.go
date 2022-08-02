@@ -70,6 +70,23 @@ func TestAppsTransport(t *testing.T) {
 	}
 }
 
+func TestNewAppsTransportCustomSigningMethod(t *testing.T) {
+	rsaPrivateKey, err := jwt.ParseRSAPrivateKeyFromPEM(key)
+	if err != nil {
+		t.Fatalf("failed to parse RSA private key: %v", err)
+	}
+
+	_, err = NewAppsTransportCustomSigningMethod(http.DefaultTransport, 1, "invalid", jwt.SigningMethodRS256)
+	if err == nil {
+		t.Errorf("expected an error, got nil")
+	}
+
+	_, err = NewAppsTransportCustomSigningMethod(http.DefaultTransport, 1, rsaPrivateKey, jwt.SigningMethodRS256)
+	if err != nil {
+		t.Errorf("expected nil, got error: %v", err)
+	}
+}
+
 func TestJWTExpiry(t *testing.T) {
 	key, err := jwt.ParseRSAPrivateKeyFromPEM(key)
 	if err != nil {
